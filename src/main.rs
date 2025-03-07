@@ -1,6 +1,6 @@
-use clap::Parser;
-use rand::{thread_rng, Rng};
-use arboard::Clipboard;
+use clap::Parser; //
+use rand::{thread_rng, Rng}; // Importiert die Thread-spezifische Zufallszahlengenerator-Bibliothek
+use arboard::Clipboard; // Importiert die Wayland-spezifische Clipboard-Bibliothek
 
 #[derive(Parser)]
 #[command(version, about="Generates a random 12 character simple password", long_about = None)] // Read from `Cargo.toml`
@@ -14,6 +14,7 @@ struct Cli {
 }
 
 fn generate_password(characters: u8, complex: bool) -> String {
+    // Diese Funktion generiert einen zufälligen Passwort-String mit der angegebenen Anzahl von Zeichen und optionaler Komplexität
     let mut password = String::new();
     let mut rng: rand::prelude::ThreadRng = thread_rng();
     let mut chars = Vec::new();
@@ -36,7 +37,7 @@ fn generate_password(characters: u8, complex: bool) -> String {
 }
 
 fn copy_to_clipboard(password: String) {
-    // Versuchen Sie, den Inhalt in die Zwischenablage zu kopieren
+    // Diese Funktion kopiert den Inhalt in die Zwischenablage und gibt eine Nachricht aus
     let mut clipboard = Clipboard::new().unwrap();
     clipboard.set_text(password).expect("Fehler beim Kopieren in die Zwischenablage");
     let content = clipboard.get_text().expect("Fehler beim Lesen aus der Zwischenablage");
@@ -44,6 +45,7 @@ fn copy_to_clipboard(password: String) {
 }
 
 fn main() {
+    // Diese Funktion ist der Einstiegspunkt des Programms
     let cli = Cli::parse();
     let password = generate_password(cli.characters, cli.complex);
     if cli.copy {
