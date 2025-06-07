@@ -1,5 +1,5 @@
 Name:           passgen
-Version:        0.1.0
+Version:        @VERSION@
 Release:        1%{?dist}
 Summary:        A random password generator
 

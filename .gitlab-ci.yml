@@ -8,6 +8,11 @@ stages:
 variables:
   GIT_STRATEGY: clone
 
+before_script:
+  - VERSION=$(grep -m1 '^version *= *"' Cargo.toml | sed 's/.*"\(.*\)".*/\1/')
+  - sed "s/@VERSION@/$VERSION/g" passgen.spec.in > passgen.spec
+  - sed "s/@VERSION@/$VERSION/g" debian_control.in > debian_control
+
 lint:
   image: rust:latest
   stage: lint
@@ -54,7 +59,8 @@ package_deb:
   script:
     - apt-get update && apt-get install -y build-essential devscripts
     - mkdir -p $CI_PROJECT_DIR/debbuild/passgen/DEBIAN
-    - cp target/release/passgen $CI_PROJECT_DIR/debbuild/passgen/
+    - mkdir -p $CI_PROJECT_DIR/debbuild/passgen/usr/bin
+    - cp target/release/passgen $CI_PROJECT_DIR/debbuild/passgen/usr/bin/
     - cp debian_control $CI_PROJECT_DIR/debbuild/passgen/DEBIAN/control
     - dpkg-deb --build $CI_PROJECT_DIR/debbuild/passgen
   artifacts:
@@ -65,8 +71,6 @@ tag_release:
   stage: release
   image: rust:latest
   script:
-    # Extract version from Cargo.toml
-    - VERSION=$(grep '^version =' Cargo.toml | head -1 | cut -d '"' -f2)
     - TAG="v$VERSION"
     # Set up git credentials for pushing
     - git config --global user.email "ci@example.com"
@@ -87,13 +91,13 @@ release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   script:
-    - VERSION=$(grep '^version =' Cargo.toml | head -1 | cut -d '"' -f2)
     - TAG="v$VERSION"
     - echo "Release job for $TAG"
   needs:
     - package_rpm
     - package_deb
-    - tag_release
+    - job: tag_release
+      optional: true
   variables:
     RELEASE_CLI_UPDATE_RELEASE: "true"
   release:
