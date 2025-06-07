@@ -60,7 +60,8 @@ package_deb:
 release:
   stage: package
   image: registry.gitlab.com/gitlab-org/release-cli:latest
-  script: []
+  script:
+    - echo "Release job"
   needs:
     - package_rpm
     - package_deb
