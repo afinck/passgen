@@ -1,0 +1,42 @@
+[package]
+name = "passgen"
+version = "0.1.4"
+edition = "2021"
+license = "MIT"
+authors = ["Andreas Finck <andreas.finck@icloud.com"]
+description = """
+A simple command-line password generator.
+ This package provides a command-line utility to generate random passwords.
+ It supports various options for password length and complexity.
+"""
+
+[dependencies]
+clap = { version = "4.0", features = ["derive"] }
+rand = "0.8"
+cli-clipboard = "0.4.0"
+arboard = "3.4.1"
+
+[package.metadata.deb]
+maintainer = "Andreas Finck <andreas.finck@icloud.com>"
+depends = "libc6 (>= 2.28)"
+section = "util"
+priority = "optional"
+assets = [
+    ["target/release/passgen", "usr/bin/passgen", "755"],
+]
+conf-files = []
+
+[package.metadata.rpm]
+package = "passgen"
+description = """
+A simple command-line password generator.
+ This package provides a command-line utility to generate random passwords.
+ It supports various options for password length and complexity.
+"""
+Summary = "A simple command-line password generator."
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+
+[package.metadata.rpm.targets]
+passgen = { path = "/usr/bin/passgen" }
