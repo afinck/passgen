@@ -4,10 +4,14 @@ Release:        1%{?dist}
 Summary:        A random password generator
 
 License:        MIT
-Source0:        %{name}-%{version}.tar.gz
+BuildArch:      x86_64
 
 %description
 Generates random passwords.
+
+%install
+mkdir -p %{buildroot}/usr/bin
+cp %{_sourcedir}/passgen %{buildroot}/usr/bin/passgen
 
 %files
 /usr/bin/passgen
