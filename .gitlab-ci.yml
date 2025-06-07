@@ -101,8 +101,8 @@ release:
   variables:
     RELEASE_CLI_UPDATE_RELEASE: "true"
   release:
-    tag_name: "v$VERSION"
-    description: "Release v$VERSION"
+    tag_name: "$TAG"
+    description: "Release $TAG"
     assets:
       links:
         - name: "RPM package"
