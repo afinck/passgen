@@ -1,0 +1,10 @@
+[package]
+name = "passgen"
+version = "1.0.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.0", features = ["derive"] }
+rand = "0.8"
+cli-clipboard = "0.4.0"
+arboard = "3.4.1"
