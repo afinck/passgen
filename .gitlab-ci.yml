@@ -3,6 +3,10 @@ stages:
   - test
   - build
   - package
+  - release
+
+variables:
+  GIT_STRATEGY: clone
 
 lint:
   image: rust:latest
@@ -57,22 +61,47 @@ package_deb:
     paths:
       - debbuild/passgen.deb
 
+tag_release:
+  stage: release
+  image: rust:latest
+  script:
+    # Extract version from Cargo.toml
+    - VERSION=$(grep '^version =' Cargo.toml | head -1 | cut -d '"' -f2)
+    - TAG="v$VERSION"
+    # Set up git credentials for pushing
+    - git config --global user.email "ci@example.com"
+    - git config --global user.name "CI Bot"
+    - git remote set-url origin https://gitlab-ci-token:${CI_PUSH_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git
+    # Only create the tag if it doesn't exist yet
+    - |
+      if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+        git tag "$TAG"
+        git push origin "$TAG"
+      else
+        echo "Tag $TAG already exists."
+      fi
+  only:
+    - main
+
 release:
-  stage: package
+  stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   script:
-    - echo "Release job"
+    - VERSION=$(grep '^version =' Cargo.toml | head -1 | cut -d '"' -f2)
+    - TAG="v$VERSION"
+    - echo "Release job for $TAG"
   needs:
     - package_rpm
     - package_deb
+    - tag_release
   variables:
     RELEASE_CLI_UPDATE_RELEASE: "true"
   release:
-    tag_name: "v0.1.0"
-    description: "Release v0.1.0"
+    tag_name: "v$VERSION"
+    description: "Release v$VERSION"
     assets:
       links:
         - name: "RPM package"
-          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/raw/rpmbuild/RPMS/x86_64/passgen-0.1.0-1.x86_64.rpm?job=package_rpm"
+          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/v$VERSION/raw/rpmbuild/RPMS/x86_64/passgen-$VERSION-1.x86_64.rpm?job=package_rpm"
         - name: "DEB package"
-          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/raw/debbuild/passgen.deb?job=package_deb"
+          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/v$VERSION/raw/debbuild/passgen.deb?job=package_deb"
