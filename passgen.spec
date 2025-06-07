@@ -7,7 +7,8 @@ License:        MIT
 BuildArch:      x86_64
 
 %description
-Generates random passwords.
+This package provides a command-line utility to generate random passwords.
+It supports various options for password length and complexity.
 
 %install
 mkdir -p %{buildroot}/usr/bin

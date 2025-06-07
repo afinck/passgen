@@ -56,3 +56,20 @@ package_deb:
   artifacts:
     paths:
       - debbuild/passgen.deb
+
+release:
+  stage: package
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script: []
+  needs:
+    - package_rpm
+    - package_deb
+  release:
+    tag_name: "v0.1.0"
+    description: "Release v0.1.0"
+    assets:
+      links:
+        - name: "RPM package"
+          url: "https://gitlab.com/<namespace>/<project>/-/jobs/<rpm_job_id>/artifacts/file/rpmbuild/RPMS/<arch>/passgen-0.1.0-1.<arch>.rpm"
+        - name: "DEB package"
+          url: "https://gitlab.com/<namespace>/<project>/-/jobs/<deb_job_id>/artifacts/file/debbuild/passgen.deb"
