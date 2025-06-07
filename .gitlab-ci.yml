@@ -91,8 +91,7 @@ release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   script:
-    - TAG="v$VERSION"
-    - echo "Release job for $TAG"
+    - echo "Release job for v$VERSION"
   needs:
     - package_rpm
     - package_deb
@@ -101,8 +100,8 @@ release:
   variables:
     RELEASE_CLI_UPDATE_RELEASE: "true"
   release:
-    tag_name: "$TAG"
-    description: "Release $TAG"
+    tag_name: "v$VERSION"
+    description: "Release v$VERSION"
     assets:
       links:
         - name: "RPM package"
