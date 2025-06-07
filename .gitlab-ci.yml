@@ -73,6 +73,6 @@ release:
     assets:
       links:
         - name: "RPM package"
-          url: "https://gitlab.com/finck_for_fun-group/passgen/-/jobs/10285370904/artifacts/rpmbuild/RPMS/x86_64/passgen-0.1.0-1.x86_64.rpm"
+          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/raw/rpmbuild/RPMS/x86_64/passgen-0.1.0-1.x86_64.rpm?job=package_rpm"
         - name: "DEB package"
-          url: "https://gitlab.com/finck_for_fun-group/passgen/-/jobs/10285370904/artifacts/debbuild/passgen.deb"
+          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_REF_NAME}/raw/debbuild/passgen.deb?job=package_deb"
