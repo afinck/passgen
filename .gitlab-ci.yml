@@ -65,12 +65,14 @@ release:
   needs:
     - package_rpm
     - package_deb
+  variables:
+    RELEASE_CLI_UPDATE_RELEASE: "true"
   release:
     tag_name: "v0.1.0"
     description: "Release v0.1.0"
     assets:
       links:
         - name: "RPM package"
-          url: "https://gitlab.com/<namespace>/<project>/-/jobs/<rpm_job_id>/artifacts/file/rpmbuild/RPMS/<arch>/passgen-0.1.0-1.<arch>.rpm"
+          url: "https://gitlab.com/finck_for_fun-group/passgen/-/jobs/10285370904/artifacts/rpmbuild/RPMS/x86_64/passgen-0.1.0-1.x86_64.rpm"
         - name: "DEB package"
-          url: "https://gitlab.com/<namespace>/<project>/-/jobs/<deb_job_id>/artifacts/file/debbuild/passgen.deb"
+          url: "https://gitlab.com/finck_for_fun-group/passgen/-/jobs/10285370904/artifacts/debbuild/passgen.deb"
