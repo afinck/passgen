@@ -34,14 +34,12 @@ fn generate_password(characters: u8, complex: bool) -> String {
     let mut rng: rand::prelude::ThreadRng = thread_rng();
     let mut chars = Vec::new();
 
-    chars.extend_from_slice(
-        b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_+!=?",
-    );
+    chars
+        .extend_from_slice(b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_+!=?");
 
     if complex {
         chars.extend_from_slice("!§$%&/()=?*+#-_.:,;<>|@".as_bytes());
     }
-    
     if chars.is_empty() {
         chars.extend_from_slice(
             b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_+!=?",
@@ -72,7 +70,7 @@ fn main() {
     let cli = Cli::parse();
     let password = generate_password(cli.characters, cli.complex);
     if cli.copy {
-        copy_to_clipboard(password.clone());   
+        copy_to_clipboard(password.clone());
     } else {
         println!("{}", password.clone());
     }
