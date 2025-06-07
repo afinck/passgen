@@ -1,0 +1,7 @@
+Package: passgen
+Version: 0.1.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Your Name Andreas Finck
+Description: A random password generator

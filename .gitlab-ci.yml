@@ -1,0 +1,58 @@
+stages:
+  - lint
+  - test
+  - build
+  - package
+
+lint:
+  image: rust:latest
+  stage: lint
+  script:
+    - rustup component add clippy rustfmt
+    - cargo fmt -- --check
+    - cargo clippy -- -D warnings
+
+test:
+  image: rust:latest
+  stage: test
+  script:
+    - cargo test --release
+
+build:
+  image: rust:latest
+  stage: build
+  script:
+    - cargo build --release
+  artifacts:
+    paths:
+      - target/release/passgen
+
+package_rpm:
+  image: fedora:latest
+  stage: package
+  dependencies:
+    - build
+  script:
+    - dnf install -y rpm-build
+    - mkdir -p $CI_PROJECT_DIR/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+    - cp target/release/passgen $CI_PROJECT_DIR/rpmbuild/SOURCES/
+    - cp passgen.spec $CI_PROJECT_DIR/rpmbuild/SPECS/
+    - rpmbuild --define "_topdir $CI_PROJECT_DIR/rpmbuild" -ba $CI_PROJECT_DIR/rpmbuild/SPECS/passgen.spec
+  artifacts:
+    paths:
+      - rpmbuild/RPMS/
+
+package_deb:
+  image: debian:latest
+  stage: package
+  dependencies:
+    - build
+  script:
+    - apt-get update && apt-get install -y build-essential devscripts
+    - mkdir -p $CI_PROJECT_DIR/debbuild/passgen/DEBIAN
+    - cp target/release/passgen $CI_PROJECT_DIR/debbuild/passgen/
+    - cp debian_control $CI_PROJECT_DIR/debbuild/passgen/DEBIAN/control
+    - dpkg-deb --build $CI_PROJECT_DIR/debbuild/passgen
+  artifacts:
+    paths:
+      - debbuild/passgen.deb
