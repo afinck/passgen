@@ -6,26 +6,26 @@ use rand::{Rng, thread_rng}; // Importiert die Thread-spezifische Zufallszahleng
 #[command(version, about="Generates a random 12 character simple password", long_about = None)] // Read from `Cargo.toml`
 struct Cli {
     #[arg(
-        short = 'n', 
+        short = "n", 
         long = "numbers", 
-        help= "number of characters", 
+        help = "number of characters", 
         default_value_t = 12
     )]
     characters: u8,
     #[arg(
-        short = 'x', 
+        short = "x", 
         long = "complex", 
-        help= "add special characters", 
+        help = "add special characters", 
         default_value_t = false
     )]
     complex: bool,
     #[arg(
-        short = 'c', 
+        short = "c", 
         long = "copy", 
-        help= "copy to clipboard", 
+        help = "copy to clipboard", 
         default_value_t = false
     )]
-    copy: bool
+    copy: bool,
 }
 
 fn generate_password(characters: u8, complex: bool) -> String {
@@ -34,8 +34,9 @@ fn generate_password(characters: u8, complex: bool) -> String {
     let mut rng: rand::prelude::ThreadRng = thread_rng();
     let mut chars = Vec::new();
 
-    chars
-        .extend_from_slice(b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_+!=?");
+    chars.extend_from_slice(
+        b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_+!=?",
+    );
 
     if complex {
         chars.extend_from_slice("!§$%&/()=?*+#-_.:,;<>|@".as_bytes());
@@ -58,7 +59,9 @@ fn copy_to_clipboard(password: String) {
     clipboard
         .set_text(password)
         .expect("Fehler beim Kopieren in die Zwischenablage");
-    let content = clipboard.get_text().expect("Fehler beim Lesen aus der Zwischenablage");
+    let content = clipboard
+        .get_text()
+        .expect("Fehler beim Lesen aus der Zwischenablage");
     println!("copied to clipboard: {}", content);
 }
 
