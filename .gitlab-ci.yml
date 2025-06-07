@@ -71,12 +71,11 @@ tag_release:
   stage: release
   image: rust:latest
   script:
+    - VERSION=$(grep -m1 '^version *= *"' Cargo.toml | sed 's/.*"\(.*\)".*/\1/')
     - TAG="v$VERSION"
-    # Set up git credentials for pushing
     - git config --global user.email "ci@example.com"
     - git config --global user.name "CI Bot"
     - git remote set-url origin https://gitlab-ci-token:${CI_PUSH_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git
-    # Only create the tag if it doesn't exist yet
     - |
       if ! git rev-parse "$TAG" >/dev/null 2>&1; then
         git tag "$TAG"
@@ -91,7 +90,7 @@ release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   script:
-    - echo "Release job for v$VERSION"
+    - echo "Release job for ${CI_COMMIT_TAG}"
   needs:
     - package_rpm
     - package_deb
@@ -100,11 +99,13 @@ release:
   variables:
     RELEASE_CLI_UPDATE_RELEASE: "true"
   release:
-    tag_name: "v$VERSION"
-    description: "Release v$VERSION"
+    tag_name: "${CI_COMMIT_TAG}"
+    description: "Release ${CI_COMMIT_TAG}"
     assets:
       links:
         - name: "RPM package"
-          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/v$VERSION/raw/rpmbuild/RPMS/x86_64/passgen-$VERSION-1.x86_64.rpm?job=package_rpm"
+          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/rpmbuild/RPMS/x86_64/passgen-${CI_COMMIT_TAG#v}-1.x86_64.rpm?job=package_rpm"
         - name: "DEB package"
-          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/v$VERSION/raw/debbuild/passgen.deb?job=package_deb"
+          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/debbuild/passgen.deb?job=package_deb"
+  only:
+    - tags
