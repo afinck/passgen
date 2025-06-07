@@ -6,23 +6,23 @@ use rand::{Rng, thread_rng}; // Importiert die Thread-spezifische Zufallszahleng
 #[command(version, about="Generates a random 12 character simple password", long_about = None)] // Read from `Cargo.toml`
 struct Cli {
     #[arg(
-        short = "n", 
-        long = "numbers", 
-        help = "number of characters", 
+        short = "n",
+        long = "numbers",
+        help = "number of characters",
         default_value_t = 12
     )]
     characters: u8,
     #[arg(
-        short = "x", 
-        long = "complex", 
-        help = "add special characters", 
+        short = "x",
+        long = "complex",
+        help = "add special characters",
         default_value_t = false
     )]
     complex: bool,
     #[arg(
-        short = "c", 
-        long = "copy", 
-        help = "copy to clipboard", 
+        short = "c",
+        long = "copy",
+        help = "copy to clipboard",
         default_value_t = false
     )]
     copy: bool,
@@ -43,7 +43,9 @@ fn generate_password(characters: u8, complex: bool) -> String {
     }
     
     if chars.is_empty() {
-        chars.extend_from_slice(b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_+!=?");
+        chars.extend_from_slice(
+            b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_+!=?",
+        );
     }
 
     for _ in 0..characters {
