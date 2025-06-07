@@ -7,10 +7,3 @@ Maintainer: Andreas Finck
 Description: A random password generator  
  This package provides a command-line utility to generate random passwords.
  It supports various options for password length and complexity.
-Depends: libc6 (>= 2.14), libgcc-s1 (>= 3.0), libstdc++6 (>= 5.2)
-          url: "https://example.com/path/to/rpm/package.rpm"
-          - name: "DEB package"
-            url: "https://gitlab.com/<namespace>/<project>/-/jobs/<deb_job_id>/artifacts/file/debbuild/passgen.deb"
-          - name: "Source code" 
-            url: "https://gitlab.com/<namespace>/<project>/-/archive/v0.1.0/<project>-v0.1.0.tar.gz"
-            
