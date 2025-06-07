@@ -6,21 +6,21 @@ use rand::{Rng, thread_rng}; // Importiert die Thread-spezifische Zufallszahleng
 #[command(version, about="Generates a random 12 character simple password", long_about = None)] // Read from `Cargo.toml`
 struct Cli {
     #[arg(
-        short = "n",
+        short = 'n',
         long = "numbers",
         help = "number of characters",
         default_value_t = 12
     )]
     characters: u8,
     #[arg(
-        short = "x",
+        short = 'x',
         long = "complex",
         help = "add special characters",
         default_value_t = false
     )]
     complex: bool,
     #[arg(
-        short = "c",
+        short = 'c',
         long = "copy",
         help = "copy to clipboard",
         default_value_t = false
