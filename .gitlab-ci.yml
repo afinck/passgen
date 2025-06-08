@@ -10,8 +10,10 @@ variables:
 
 before_script:
   - VERSION=$(grep -m1 '^version *= *"' Cargo.toml | sed 's/.*"\(.*\)".*/\1/')
-  - sed "s/@VERSION@/$VERSION/g" passgen.spec.in > passgen.spec
-  - sed "s/@VERSION@/$VERSION/g" debian_control.in > debian_control
+  - DESCRIPTION=$(awk '/^description *= *"""/{flag=1; next} /^"""/{flag=0} flag' Cargo.toml | sed ':a;N;$!ba;s/\n/\\n/g')
+  - SUMMARY=$(awk '/^description *= *"""/{getline; print; exit}' Cargo.toml | tr -d '\n')
+  - sed "s/@VERSION@/$VERSION/g;s/@DESCRIPTION@/$DESCRIPTION/g;s/@SUMMARY@/$SUMMARY/g" passgen.spec.in > passgen.spec
+  - sed "s/@VERSION@/$VERSION/g;s/@DESCRIPTION@/$DESCRIPTION/g" debian_control.in > debian_control
 
 lint:
   image: rust:latest

@@ -1,9 +1,13 @@
-use arboard::Clipboard; // Importiert die Wayland-spezifische Clipboard-Bibliothek
-use clap::Parser; //
-use rand::{Rng, thread_rng}; // Importiert die Thread-spezifische Zufallszahlengenerator-Bibliothek
+use arboard::Clipboard; // Imports the Wayland-specific clipboard library
+use clap::Parser;
+use rand::{Rng, thread_rng}; // Imports the thread-specific random number generator library
 
 #[derive(Parser)]
-#[command(version, about="Generates a random 12 character simple password", long_about = None)] // Read from `Cargo.toml`
+#[command(
+    version,
+    about = env!("CARGO_PKG_DESCRIPTION").lines().next().unwrap(), // First line of description
+    long_about = env!("CARGO_PKG_DESCRIPTION") // Full description
+)]
 struct Cli {
     #[arg(
         short = 'n',
@@ -29,7 +33,7 @@ struct Cli {
 }
 
 fn generate_password(characters: u8, complex: bool) -> String {
-    // Diese Funktion generiert einen zufälligen Passwort-String mit der angegebenen Anzahl von Zeichen und optionaler Komplexität
+    // This function generates a random password string with the specified number of characters and optional complexity
     let mut password = String::new();
     let mut rng: rand::prelude::ThreadRng = thread_rng();
     let mut chars = Vec::new();
@@ -54,19 +58,19 @@ fn generate_password(characters: u8, complex: bool) -> String {
 }
 
 fn copy_to_clipboard(password: String) {
-    // Diese Funktion kopiert den Inhalt in die Zwischenablage und gibt eine Nachricht aus
+    // This function copies the content to the clipboard and prints a message
     let mut clipboard = Clipboard::new().unwrap();
     clipboard
         .set_text(password)
-        .expect("Fehler beim Kopieren in die Zwischenablage");
+        .expect("Error copying to clipboard");
     let content = clipboard
         .get_text()
-        .expect("Fehler beim Lesen aus der Zwischenablage");
+        .expect("Error reading from clipboard");
     println!("copied to clipboard: {}", content);
 }
 
 fn main() {
-    // Diese Funktion ist der Einstiegspunkt des Programms
+    // This function is the entry point of the program
     let cli = Cli::parse();
     let password = generate_password(cli.characters, cli.complex);
     if cli.copy {

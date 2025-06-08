@@ -4,6 +4,4 @@ Section: utils
 Priority: optional
 Architecture: amd64
 Maintainer: Andreas Finck
-Description: A random password generator  
- This package provides a command-line utility to generate random passwords.
- It supports various options for password length and complexity.
+Description: @DESCRIPTION@

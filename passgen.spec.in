@@ -1,14 +1,13 @@
 Name:           passgen
 Version:        @VERSION@
 Release:        1%{?dist}
-Summary:        A random password generator
+Summary:        @SUMMARY@
 
 License:        MIT
 BuildArch:      x86_64
 
 %description
-This package provides a command-line utility to generate random passwords.
-It supports various options for password length and complexity.
+@DESCRIPTION@
 
 %install
 mkdir -p %{buildroot}/usr/bin
