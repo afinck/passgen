@@ -14,25 +14,22 @@ before_script:
   - SUMMARY=$(echo "$DESCRIPTION" | head -n1)
   - LONGDESC=$(echo "$DESCRIPTION" | tail -n +2 | sed 's/^/ /')
   - if [ -n "$LONGDESC" ]; then DESC="$SUMMARY\n$LONGDESC"; else DESC="$SUMMARY"; fi
-
-  # Replace placeholders in passgen.spec.in (single-line replacements only)
   - sed "s|@VERSION@|$VERSION|g;s|@SUMMARY@|$SUMMARY|g" passgen.spec.in > passgen.spec
-  # For multiline DESCRIPTION, use printf and sed for passgen.spec
-  - if grep -q '@DESCRIPTION@' passgen.spec; then \
-      printf '%s\n' "$DESCRIPTION" | sed '/@DESCRIPTION@/{
-        r /dev/stdin
-        d
-      }' passgen.spec > passgen.spec.tmp && mv passgen.spec.tmp passgen.spec; \
-    fi
-
-  # Replace placeholders in debian_control.in (with correct Description formatting)
+  - |
+      if grep -q '@DESCRIPTION@' passgen.spec; then
+        printf '%s\n' "$DESCRIPTION" | sed '/@DESCRIPTION@/{
+          r /dev/stdin
+          d
+        }' passgen.spec > passgen.spec.tmp && mv passgen.spec.tmp passgen.spec
+      fi
   - sed "s|@VERSION@|$VERSION|g" debian_control.in > debian_control
-  - if grep -q '@DESCRIPTION@' debian_control; then \
-      printf '%b\n' "$DESC" | sed '/@DESCRIPTION@/{
-        r /dev/stdin
-        d
-      }' debian_control > debian_control.tmp && mv debian_control.tmp debian_control; \
-    fi
+  - |
+      if grep -q '@DESCRIPTION@' debian_control; then
+        printf '%b\n' "$DESC" | sed '/@DESCRIPTION@/{
+          r /dev/stdin
+          d
+        }' debian_control > debian_control.tmp && mv debian_control.tmp debian_control
+      fi
 
 lint:
   image: rust:latest
