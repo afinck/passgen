@@ -9,20 +9,30 @@ variables:
   GIT_STRATEGY: clone
 
 before_script:
-  # Install sed if needed (usually present), remove gawk/awk
   - VERSION=$(grep -m1 '^version *= *"' Cargo.toml | sed 's/.*"\(.*\)".*/\1/')
-  # Extract multiline description from Cargo.toml using sed
   - DESCRIPTION=$(sed -n '/^description *= *"""/,/^"""/p' Cargo.toml | sed '1d;$d')
-  # Get summary (first line)
   - SUMMARY=$(echo "$DESCRIPTION" | head -n1)
-  # Format long description (remaining lines, each indented by a space)
   - LONGDESC=$(echo "$DESCRIPTION" | tail -n +2 | sed 's/^/ /')
-  # Combine summary and long description for DEB
   - if [ -n "$LONGDESC" ]; then DESC="$SUMMARY\n$LONGDESC"; else DESC="$SUMMARY"; fi
-  # Replace placeholders in passgen.spec.in
-  - sed "s/@VERSION@/$VERSION/g;s/@DESCRIPTION@/$DESCRIPTION/g;s/@SUMMARY@/$SUMMARY/g" passgen.spec.in > passgen.spec
-  # Replace placeholders in debian_control.in and write to debian_control (with correct Description formatting)
-  - sed "s/@VERSION@/$VERSION/g" debian_control.in | sed "s|@DESCRIPTION@|$DESC|" > debian_control
+
+  # Replace placeholders in passgen.spec.in (single-line replacements only)
+  - sed "s|@VERSION@|$VERSION|g;s|@SUMMARY@|$SUMMARY|g" passgen.spec.in > passgen.spec
+  # For multiline DESCRIPTION, use printf and sed for passgen.spec
+  - if grep -q '@DESCRIPTION@' passgen.spec; then \
+      printf '%s\n' "$DESCRIPTION" | sed '/@DESCRIPTION@/{
+        r /dev/stdin
+        d
+      }' passgen.spec > passgen.spec.tmp && mv passgen.spec.tmp passgen.spec; \
+    fi
+
+  # Replace placeholders in debian_control.in (with correct Description formatting)
+  - sed "s|@VERSION@|$VERSION|g" debian_control.in > debian_control
+  - if grep -q '@DESCRIPTION@' debian_control; then \
+      printf '%b\n' "$DESC" | sed '/@DESCRIPTION@/{
+        r /dev/stdin
+        d
+      }' debian_control > debian_control.tmp && mv debian_control.tmp debian_control; \
+    fi
 
 lint:
   image: rust:latest
