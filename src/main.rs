@@ -63,9 +63,7 @@ fn copy_to_clipboard(password: String) {
     clipboard
         .set_text(password)
         .expect("Error copying to clipboard");
-    let content = clipboard
-        .get_text()
-        .expect("Error reading from clipboard");
+    let content = clipboard.get_text().expect("Error reading from clipboard");
     println!("copied to clipboard: {}", content);
 }
 
