@@ -2,6 +2,7 @@
 name = "passgen"
 version = "0.1.2"
 edition = "2024"
+authors = ["Andreas Finck <andreas.finck@icloud.com"]
 description = """
 A simple command-line password generator.
  This package provides a command-line utility to generate random passwords.

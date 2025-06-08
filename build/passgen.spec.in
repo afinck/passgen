@@ -8,6 +8,7 @@ BuildArch:      x86_64
 
 %description
 @DESCRIPTION@
+Author: @AUTHOR@
 
 %install
 mkdir -p %{buildroot}/usr/bin
