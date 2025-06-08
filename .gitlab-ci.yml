@@ -25,10 +25,17 @@ before_script:
   - sed "s|@VERSION@|$VERSION|g" debian_control.in > debian_control
   - |
       if grep -q '@DESCRIPTION@' debian_control; then
-        printf '%b\n' "$DESC" | sed '/@DESCRIPTION@/{
-          r /dev/stdin
+        {
+          echo "Description: $SUMMARY"
+          if [ -n "$LONGDESC" ]; then
+            echo "$LONGDESC"
+          fi
+        } > desc.tmp
+        sed "/@DESCRIPTION@/{
+          r desc.tmp
           d
-        }' debian_control > debian_control.tmp && mv debian_control.tmp debian_control
+        }" debian_control > debian_control.tmp && mv debian_control.tmp debian_control
+        rm desc.tmp
       fi
 
 lint:
