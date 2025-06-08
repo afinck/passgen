@@ -4,8 +4,8 @@ version = "0.1.2"
 edition = "2024"
 description = """
 A simple command-line password generator.
-This package provides a command-line utility to generate random passwords.
-It supports various options for password length and complexity.
+ This package provides a command-line utility to generate random passwords.
+ It supports various options for password length and complexity.
 """
 
 [dependencies]
