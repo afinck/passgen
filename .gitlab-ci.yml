@@ -55,6 +55,7 @@ package_rpm:
   dependencies:
     - build
   script:
+    - dnf install -y gawk
     - dnf install -y rpm-build
     - mkdir -p $CI_PROJECT_DIR/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
     - cp target/release/passgen $CI_PROJECT_DIR/rpmbuild/SOURCES/
