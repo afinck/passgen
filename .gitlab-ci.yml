@@ -9,23 +9,20 @@ variables:
   GIT_STRATEGY: clone
 
 before_script:
-  - dnf install -y gawk
+  # Install sed if needed (usually present), remove gawk/awk
   - VERSION=$(grep -m1 '^version *= *"' Cargo.toml | sed 's/.*"\(.*\)".*/\1/')
-  - DESCRIPTION=$(awk '/^description *= *"""/{flag=1; next} /^"""/{flag=0} flag' Cargo.toml | sed ':a;N;$!ba;s/\n/\\n/g')
-  - SUMMARY=$(awk '/^description *= *"""/{getline; print; exit}' Cargo.toml | tr -d '\n')
-  - sed "s/@VERSION@/$VERSION/g;s/@DESCRIPTION@/$DESCRIPTION/g;s/@SUMMARY@/$SUMMARY/g" passgen.spec.in > passgen.spec
-  - sed "s/@VERSION@/$VERSION/g;s/@DESCRIPTION@/$DESCRIPTION/g" debian_control.in > debian_control
-  - VERSION=$(grep -m1 '^version *= *"' Cargo.toml | sed 's/.*"\(.*\)".*/\1/')
-  # Extract multiline description from Cargo.toml
-  - DESCRIPTION=$(awk '/^description *= *"""/{flag=1; next} /^"""/{flag=0} flag' Cargo.toml)
+  # Extract multiline description from Cargo.toml using sed
+  - DESCRIPTION=$(sed -n '/^description *= *"""/,/^"""/p' Cargo.toml | sed '1d;$d')
   # Get summary (first line)
   - SUMMARY=$(echo "$DESCRIPTION" | head -n1)
   # Format long description (remaining lines, each indented by a space)
   - LONGDESC=$(echo "$DESCRIPTION" | tail -n +2 | sed 's/^/ /')
-  # Combine summary and long description
+  # Combine summary and long description for DEB
   - if [ -n "$LONGDESC" ]; then DESC="$SUMMARY\n$LONGDESC"; else DESC="$SUMMARY"; fi
-  # Replace placeholders in debian_control.in and write to debian_control
-  - sed "s/@VERSION@/$VERSION/g" debian_control.in | awk -v desc="$DESC" '{gsub(/@DESCRIPTION@/, desc)}1' > debian_control
+  # Replace placeholders in passgen.spec.in
+  - sed "s/@VERSION@/$VERSION/g;s/@DESCRIPTION@/$DESCRIPTION/g;s/@SUMMARY@/$SUMMARY/g" passgen.spec.in > passgen.spec
+  # Replace placeholders in debian_control.in and write to debian_control (with correct Description formatting)
+  - sed "s/@VERSION@/$VERSION/g" debian_control.in | sed "s|@DESCRIPTION@|$DESC|" > debian_control
 
 lint:
   image: rust:latest
