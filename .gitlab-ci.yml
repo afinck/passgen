@@ -9,6 +9,7 @@ variables:
   GIT_STRATEGY: clone
 
 before_script:
+  - dnf install -y gawk
   - VERSION=$(grep -m1 '^version *= *"' Cargo.toml | sed 's/.*"\(.*\)".*/\1/')
   - DESCRIPTION=$(awk '/^description *= *"""/{flag=1; next} /^"""/{flag=0} flag' Cargo.toml | sed ':a;N;$!ba;s/\n/\\n/g')
   - SUMMARY=$(awk '/^description *= *"""/{getline; print; exit}' Cargo.toml | tr -d '\n')
@@ -55,7 +56,6 @@ package_rpm:
   dependencies:
     - build
   script:
-    - dnf install -y gawk
     - dnf install -y rpm-build
     - mkdir -p $CI_PROJECT_DIR/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
     - cp target/release/passgen $CI_PROJECT_DIR/rpmbuild/SOURCES/
