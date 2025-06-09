@@ -103,3 +103,4 @@ Contributions are welcome! Please open issues or merge requests on GitLab.
 ## Author
 
 Andreas Finck
+
