@@ -79,8 +79,8 @@ package_rpm:
     - dnf install -y rpm-build
     - mkdir -p $CI_PROJECT_DIR/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
     - cp target/release/$CI_PROJECT_NAME $CI_PROJECT_DIR/rpmbuild/SOURCES/
-    - cp build/$CI_PROJECT_NAME.spec $CI_PROJECT_DIR/rpmbuild/SPECS/
-    - rpmbuild --define "_topdir $CI_PROJECT_DIR/rpmbuild" -ba $CI_PROJECT_DIR/rpmbuild/SPECS/$CI_PROJECT_NAME.spec
+    - cp build/redhat.spec $CI_PROJECT_DIR/rpmbuild/SPECS/
+    - rpmbuild --define "_topdir $CI_PROJECT_DIR/rpmbuild" -ba $CI_PROJECT_DIR/rpmbuild/SPECS/redhat.spec
     - RELEASE=$(grep -m1 '^Release:' build/redhat.spec | sed 's/Release:[[:space:]]*//;s/%{?dist}//')
     - echo "RELEASE=$RELEASE" >> variables.env
     - RPM_FILE=$(find rpmbuild/RPMS/x86_64 -name "${CI_PROJECT_NAME}-*.x86_64.rpm" | head -n1)
