@@ -1,6 +1,6 @@
 use arboard::Clipboard; // Imports the Wayland-specific clipboard library
 use clap::Parser;
-use rand::{Rng, thread_rng}; // Imports the thread-specific random number generator library
+use rand::{thread_rng, Rng}; // Imports the thread-specific random number generator library
 
 #[derive(Parser)]
 #[command(
