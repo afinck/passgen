@@ -150,9 +150,9 @@ release:
     assets:
       links:
         - name: "RPM package"
-          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/rpmbuild/RPMS/x86_64/$CI_PROJECT_NAME-${TAG_NO_V}-${RELEASE_DIST}.x86_64.rpm?job=package_rpm"
+          url: "https://gitlab.heavycross.de/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/rpmbuild/RPMS/x86_64/$CI_PROJECT_NAME-${TAG_NO_V}-${RELEASE_DIST}.x86_64.rpm?job=package_rpm"
         - name: "DEB package"
-          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/debbuild/$CI_PROJECT_NAME.deb?job=package_deb"
+          url: "https://gitlab.heavycross.de/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/debbuild/$CI_PROJECT_NAME.deb?job=package_deb"
   only:
     - tags
   artifacts:
