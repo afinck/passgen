@@ -1,4 +1,4 @@
-Name:           passgen
+Name:           @NAME@
 Version:        @VERSION@
 Release:        1%{?dist}
 Summary:        @SUMMARY@
@@ -12,7 +12,7 @@ Author: @AUTHOR@
 
 %install
 mkdir -p %{buildroot}/usr/bin
-cp %{_sourcedir}/passgen %{buildroot}/usr/bin/passgen
+cp %{_sourcedir}/@NAME@ %{buildroot}/usr/bin/@NAME@
 
 %files
-/usr/bin/passgen
+/usr/bin/@NAME@

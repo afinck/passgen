@@ -9,24 +9,29 @@ variables:
   GIT_STRATEGY: clone
 
 before_script:
+  - NAME=$(grep -m1 '^name *= *"' Cargo.toml | sed 's/.*"\(.*\)".*/\1/')
   - VERSION=$(grep -m1 '^version *= *"' Cargo.toml | sed 's/.*"\(.*\)".*/\1/')
+  # Try to extract multi-line description first 
   - DESCRIPTION=$(sed -n '/^description *= *"""/,/^"""/p' Cargo.toml | sed '1d;$d')
+  # If that fails, try single-line description
+  - if [ -z "$DESCRIPTION" ]; then DESCRIPTION=$(grep -m1 '^description *= *"' Cargo.toml | sed 's/.*"\(.*\)".*/\1/'); fi
   - SUMMARY=$(echo "$DESCRIPTION" | head -n1)
   - LONGDESC=$(echo "$DESCRIPTION" | tail -n +2 | sed 's/^/ /')
   - if [ -n "$LONGDESC" ]; then DESC="$SUMMARY\n$LONGDESC"; else DESC="$SUMMARY"; fi
+  # Extract author information, handling both single and multiple authors
   - AUTHOR=$(grep -m1 '^authors *= *' Cargo.toml | sed 's/authors *= *\[\(.*\)\]/\1/' | sed 's/"//g' | cut -d',' -f1 | xargs)
-  # Replace placeholders in build/passgen.spec.in (single-line replacements only)
-  - sed "s|@VERSION@|$VERSION|g;s|@SUMMARY@|$SUMMARY|g;s|@AUTHOR@|$AUTHOR|g" build/passgen.spec.in > build/passgen.spec
-  # For multiline DESCRIPTION, use printf and sed for build/passgen.spec
+  # Replace placeholders in build/redhat.spec.in (single-line replacements only)
+  - sed "s|@NAME@|$NAME|g;s|@VERSION@|$VERSION|g;s|@SUMMARY@|$SUMMARY|g;s|@AUTHOR@|$AUTHOR|g" build/redhat.spec.in > build/redhat.spec
+  # For multiline DESCRIPTION, use printf and sed for build/redhat.spec
   - |
-      if grep -q '@DESCRIPTION@' build/passgen.spec; then
+      if grep -q '@DESCRIPTION@' build/redhat.spec; then
         printf '%s\n' "$DESCRIPTION" | sed '/@DESCRIPTION@/{
           r /dev/stdin
           d
-        }' build/passgen.spec > build/passgen.spec.tmp && mv build/passgen.spec.tmp build/passgen.spec
+        }' build/redhat.spec > build/redhat.spec.tmp && mv build/redhat.spec.tmp build/redhat.spec
       fi
   # Replace placeholders in build/debian_control.in and write to build/debian_control (with correct Description formatting)
-  - sed "s|@VERSION@|$VERSION|g;s|@AUTHOR@|$AUTHOR|g" build/debian_control.in > build/debian_control
+  - sed "s|@NAME@|$NAME|g;s|@VERSION@|$VERSION|g;s|@AUTHOR@|$AUTHOR|g" build/debian_control.in > build/debian_control
   - |
       if grep -q '@DESCRIPTION@' build/debian_control; then
         {
@@ -63,7 +68,7 @@ build:
     - cargo build --release
   artifacts:
     paths:
-      - target/release/passgen
+      - target/release/$CI_PROJECT_NAME
 
 package_rpm:
   image: fedora:latest
@@ -73,12 +78,24 @@ package_rpm:
   script:
     - dnf install -y rpm-build
     - mkdir -p $CI_PROJECT_DIR/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-    - cp target/release/passgen $CI_PROJECT_DIR/rpmbuild/SOURCES/
-    - cp build/passgen.spec $CI_PROJECT_DIR/rpmbuild/SPECS/
-    - rpmbuild --define "_topdir $CI_PROJECT_DIR/rpmbuild" -ba $CI_PROJECT_DIR/rpmbuild/SPECS/passgen.spec
+    - cp target/release/$CI_PROJECT_NAME $CI_PROJECT_DIR/rpmbuild/SOURCES/
+    - cp build/$CI_PROJECT_NAME.spec $CI_PROJECT_DIR/rpmbuild/SPECS/
+    - rpmbuild --define "_topdir $CI_PROJECT_DIR/rpmbuild" -ba $CI_PROJECT_DIR/rpmbuild/SPECS/$CI_PROJECT_NAME.spec
+    - RELEASE=$(grep -m1 '^Release:' build/redhat.spec | sed 's/Release:[[:space:]]*//;s/%{?dist}//')
+    - echo "RELEASE=$RELEASE" >> variables.env
+    - RPM_FILE=$(find rpmbuild/RPMS/x86_64 -name "${CI_PROJECT_NAME}-*.x86_64.rpm" | head -n1)
+    - RPM_BASENAME=$(basename "$RPM_FILE")
+    # Extract the release+dist part (e.g., 1.fc42) from the RPM filename
+    - RELEASE_DIST=$(echo "$RPM_BASENAME" | sed -E "s/^${CI_PROJECT_NAME}-[0-9.]+-([^.]+(\.[^.]+)*)\.x86_64\.rpm$/\1/")
+    - echo "RELEASE_DIST=$RELEASE_DIST" >> variables.env
+    - TAG_NO_V="${CI_COMMIT_TAG#v}"
+    - echo "TAG_NO_V=$TAG_NO_V" >> variables.env
   artifacts:
     paths:
       - rpmbuild/RPMS/
+    reports:
+      dotenv: variables.env
+
 
 package_deb:
   image: debian:latest
@@ -87,14 +104,14 @@ package_deb:
     - build
   script:
     - apt-get update && apt-get install -y build-essential devscripts
-    - mkdir -p $CI_PROJECT_DIR/debbuild/passgen/DEBIAN
-    - mkdir -p $CI_PROJECT_DIR/debbuild/passgen/usr/bin
-    - cp target/release/passgen $CI_PROJECT_DIR/debbuild/passgen/usr/bin/
-    - cp build/debian_control $CI_PROJECT_DIR/debbuild/passgen/DEBIAN/control
-    - dpkg-deb --build $CI_PROJECT_DIR/debbuild/passgen
+    - mkdir -p $CI_PROJECT_DIR/debbuild/$CI_PROJECT_NAME/DEBIAN
+    - mkdir -p $CI_PROJECT_DIR/debbuild/$CI_PROJECT_NAME/usr/bin
+    - cp target/release/$CI_PROJECT_NAME $CI_PROJECT_DIR/debbuild/$CI_PROJECT_NAME/usr/bin/
+    - cp build/debian_control $CI_PROJECT_DIR/debbuild/$CI_PROJECT_NAME/DEBIAN/control
+    - dpkg-deb --build $CI_PROJECT_DIR/debbuild/$CI_PROJECT_NAME
   artifacts:
     paths:
-      - debbuild/passgen.deb
+      - debbuild/$CI_PROJECT_NAME.deb
 
 tag_release:
   stage: release
@@ -133,8 +150,11 @@ release:
     assets:
       links:
         - name: "RPM package"
-          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/rpmbuild/RPMS/x86_64/passgen-${CI_COMMIT_TAG#v}-1.x86_64.rpm?job=package_rpm"
+          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/rpmbuild/RPMS/x86_64/$CI_PROJECT_NAME-${TAG_NO_V}-${RELEASE_DIST}.x86_64.rpm?job=package_rpm"
         - name: "DEB package"
-          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/debbuild/passgen.deb?job=package_deb"
+          url: "https://gitlab.com/${CI_PROJECT_PATH}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/debbuild/$CI_PROJECT_NAME.deb?job=package_deb"
   only:
     - tags
+  artifacts:
+    reports:
+      dotenv: variables.env
