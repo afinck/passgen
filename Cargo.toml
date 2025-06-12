@@ -14,3 +14,16 @@ clap = { version = "4.0", features = ["derive"] }
 rand = "0.8"
 cli-clipboard = "0.4.0"
 arboard = "3.4.1"
+
+[package.metadata.deb]
+maintainer = $authors
+description = "A simple and flexible command-line password generator written in Rust."
+depends = "libc6 (>= 2.28)"
+section = "util"
+priority = "optional"
+assets = [
+    ["target/release/passgen", "usr/bin/passgen", "755"],
+    ["static/*", "usr/share/passgen/static/", "644"],
+    ["templates/*", "usr/share/passgen/templates/", "644"]
+]
+conf-files = []
