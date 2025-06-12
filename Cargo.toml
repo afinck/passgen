@@ -2,6 +2,7 @@
 name = "passgen"
 version = "0.1.4"
 edition = "2021"
+license = "MIT"
 authors = ["Andreas Finck <andreas.finck@icloud.com"]
 description = """
 A simple command-line password generator.
