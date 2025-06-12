@@ -25,3 +25,12 @@ assets = [
     ["target/release/passgen", "usr/bin/passgen", "755"],
 ]
 conf-files = []
+
+[package.metadata.rpm]
+package = "passgen"
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+
+[package.metadata.rpm.targets]
+passgen = { path = "/usr/bin/passgen" }
