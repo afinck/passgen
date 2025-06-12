@@ -4,8 +4,6 @@
 
 Name: passgen
 Summary: A simple command-line password generator.
- This package provides a command-line utility to generate random passwords.
- It supports various options for password length and complexity.
 
 Version: @@VERSION@@
 Release: @@RELEASE@@%{?dist}
@@ -15,7 +13,9 @@ Source0: %{name}-%{version}.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
-%description
+%description 
+This package provides a command-line utility to generate random passwords. 
+It supports various options for password length and complexity.
 %{summary}
 
 %prep
