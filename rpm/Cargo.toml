@@ -1,0 +1,20 @@
+[package]
+name = "passgen"
+version = "0.1.4"
+edition = "2021"
+authors = ["Andreas Finck <andreas.finck@icloud.com"]
+description = """
+A simple command-line password generator.
+ This package provides a command-line utility to generate random passwords.
+ It supports various options for password length and complexity.
+"""
+homepage = "https://github.com/afinck/passgen"
+requires = ["glibc"]
+
+[files]
+# Binary
+"target/release/passgen" = "/usr/bin/passgen"
+# Static assets
+"static/*" = "/usr/share/passgen/static/"
+# Templates
+"templates/*" = "/usr/share/passgen/templates/"
